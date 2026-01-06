@@ -13,23 +13,6 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private dataSource: DataSource;
 
   constructor() {
-    console.log({
-      type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5444'),
-      username: process.env.DB_USERNAME || 'flashlink_db_user',
-      password: process.env.DB_PASSWORD || 'ptm_pg_2024',
-      database: process.env.DB_DATABASE || 'flashlink_db',
-      entities: [UrlEntity],
-      synchronize: false,
-      logging: process.env.NODE_ENV === 'development',
-      extra: {
-        connectionTimeoutMillis: 30000,
-        idleTimeoutMillis: 30000,
-        max: 20,
-      },
-    });
-
     this.dataSource = new DataSource({
       type: 'postgres',
       host: process.env.DB_HOST || 'localhost',

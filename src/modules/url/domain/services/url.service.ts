@@ -10,4 +10,9 @@ export class UrlService {
     const urlEntity = await this.urlRepository.insertUrl(dto.code, dto.url);
     return urlEntity.code;
   }
+
+  public async getOriginalUrl(code: string): Promise<string | null> {
+    const urlEntity = await this.urlRepository.findByCode(code);
+    return urlEntity ? urlEntity.longUrl : null;
+  }
 }

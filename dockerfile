@@ -23,4 +23,4 @@ RUN npm ci --omit=dev
 
 COPY --from=build /usr/src/app/dist ./dist
 
-CMD ["npm", "run", "start:prod"]
+CMD ["node", "dist/main.js"]
