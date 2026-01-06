@@ -26,9 +26,27 @@ export default tseslint.config(
   },
   {
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn'
+      '@typescript-eslint/explicit-function-return-type': 'error',
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          selector: 'default',
+          format: [
+            'strictCamelCase',
+            'StrictPascalCase',
+            'UPPER_CASE',
+            'snake_case',
+          ],
+        },
+      ],
+      '@typescript-eslint/no-empty-interface': 'off',
+      'unicorn/filename-case': [
+        'error',
+        {
+          case: 'kebabCase',
+        },
+      ],
     },
   },
 );

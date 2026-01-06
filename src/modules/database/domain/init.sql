@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS url (
+    id SERIAL PRIMARY KEY,
+    code VARCHAR(255) NOT NULL UNIQUE,
+    long_url TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_url_code ON url (code);
