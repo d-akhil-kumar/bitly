@@ -14,12 +14,41 @@ services:
       - POSTGRES_USER=flashlink_db_user
       - POSTGRES_PASSWORD=ptm_pg_2024
       - POSTGRES_PORT=5432
+    networks:
+      - flashlink_network
     healthcheck:
       test: [ 'CMD', 'pg_isready', '-U', 'flashlink_db_user', '-d', 'flashlink_db', '-t', '1' ]
       interval: 2s
       timeout: 100s
       retries: 10
 
+  flashlink-server:
+    image: flashlink_server_i
+    container_name: flashlink_server_c
+    build:
+      context: .
+    env_file:
+      - .env
+    ports:
+      - "3000:${PORT}"
+    depends_on:
+      flashlink-postgres:   
+        condition: service_healthy
+    networks:
+      - flashlink_network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:$PORT"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 2s
+    restart: unless-stopped
+
 
 volumes:
   flashlink_log_in_pg_v:
+
+networks:
+  flashlink_network:
+    driver: bridge
+    name: flashlink_network_bridge
