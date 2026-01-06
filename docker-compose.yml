@@ -22,6 +22,32 @@ services:
       timeout: 100s
       retries: 10
 
+  flashlink-redis:
+    image: redis:6.2.16
+    container_name: flashlink_redis_c
+    # 1. Start with password
+    # 2. Enable disk persistence (appendonly)
+    # 3. INTERNAL Logic: Tell Redis to evict old keys if it hits 100MB (leaving 28MB buffer for overhead)
+    command: redis-server --requirepass "flashlink_redis_pass" --appendonly yes --maxmemory 100mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6444:6379" # Optional: Open for local debugging (e.g. Redis Insight)
+    volumes:
+      - flashlink_redis_data:/data
+    # 🛑 EXTERNAL Hard Limit: Docker kills container if it exceeds 128MB
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    networks:
+      - flashlink_network
+    healthcheck:
+      # We must pass the password (-a) to ping, otherwise it fails!
+      test: ["CMD", "redis-cli", "-a", "flashlink_redis_pass", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
   flashlink-server:
     image: flashlink_server_i
     container_name: flashlink_server_c
@@ -33,6 +59,8 @@ services:
       - "3000:${PORT}"
     depends_on:
       flashlink-postgres:   
+        condition: service_healthy
+      flashlink-redis:
         condition: service_healthy
     networks:
       - flashlink_network
@@ -47,6 +75,7 @@ services:
 
 volumes:
   flashlink_log_in_pg_v:
+  flashlink_redis_data:
 
 networks:
   flashlink_network:
