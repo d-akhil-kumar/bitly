@@ -48,6 +48,30 @@ services:
       retries: 3
     restart: unless-stopped
 
+  flashlink-queue:
+    image: rabbitmq:3-management-alpine
+    container_name: flashlink_queue_c
+    ports:
+      - "5672:5672"   # The Port for NestJS to talk to RabbitMQ
+      - "15672:15672" # The Port for YOU (Dashboard UI)
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - flashlink_queue_data:/var/lib/rabbitmq
+    networks:
+      - flashlink_network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   flashlink-server:
     image: flashlink_server_i
     container_name: flashlink_server_c
@@ -61,6 +85,8 @@ services:
       flashlink-postgres:   
         condition: service_healthy
       flashlink-redis:
+        condition: service_healthy
+      flashlink-queue:
         condition: service_healthy
     networks:
       - flashlink_network
@@ -76,6 +102,7 @@ services:
 volumes:
   flashlink_log_in_pg_v:
   flashlink_redis_data:
+  flashlink_queue_data:
 
 networks:
   flashlink_network:

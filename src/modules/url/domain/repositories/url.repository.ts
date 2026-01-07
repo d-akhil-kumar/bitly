@@ -28,4 +28,33 @@ export class UrlRepository {
   async findById(id: number): Promise<UrlEntity | null> {
     return await this.getRepository().findOne({ where: { id } });
   }
+
+  async bulkIncrementClickCount(codes: string[]): Promise<void> {
+    if (codes.length === 0) return;
+
+    // Count occurrences of each code
+    const codeCountMap = codes.reduce((acc, code) => {
+      acc[code] = (acc[code] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Build a single SQL query to update all codes at once
+    const caseStatements = Object.entries(codeCountMap)
+      .map(([code, count]) => `WHEN code = '${code}' THEN click_count + ${count}`)
+      .join(' ');
+
+    const codesString = Object.keys(codeCountMap)
+      .map((code) => `'${code}'`)
+      .join(', ');
+
+    const query = `
+      UPDATE url 
+      SET click_count = CASE 
+        ${caseStatements}
+      END
+      WHERE code IN (${codesString})
+    `;
+
+    await this.databaseService.getDataSource().query(query);
+  }
 }

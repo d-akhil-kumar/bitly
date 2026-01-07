@@ -18,6 +18,9 @@ export class UrlEntity {
   @Column({ name: 'long_url', type: 'text' })
   longUrl: string;
 
+  @Column({ name: 'click_count', type: 'integer', default: 0 })
+  clickCount: number;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 }
